@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pdf_viewer/screens/username_Screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'username_screen.dart';
+import 'Mainscreen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,26 +14,32 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    //navigate to userscreen after 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => UsernameScreen(),
-        ),
-      );
-    });
+    _navigate();
   }
 
+  _navigate() async {
+    await Future.delayed(Duration(seconds: 2)); // Show splash for 2 seconds
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username');
+    if (username != null && username.isNotEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainScreen(username: username)),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => UsernameScreen()),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF3C3C3C),
       body: Center(
-        child: Image.asset(
-          'assets/images/app_logo.png',
-          width: 150,
-          height: 150,
-        ),
+        child: Image.asset('assets/app_logo.png'), // Your splash screen logo
       ),
     );
   }
