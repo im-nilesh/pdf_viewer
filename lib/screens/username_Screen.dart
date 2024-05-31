@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pdf_viewer/screens/Main_screen.dart';
+import 'package:pdf_viewer/screens/homeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pdf_viewer/screens/homeScreen.dart';
 
 class UsernameScreen extends StatefulWidget {
   const UsernameScreen({super.key});
@@ -51,9 +52,10 @@ class _UsernameScreenState extends State<UsernameScreen> {
                     color: Colors.white,
                     child: const SizedBox(
                       height: 40,
-                      child: const Text(
+                      child: Text(
                         'Enter your Username',
                         style: TextStyle(
+                          color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -69,9 +71,8 @@ class _UsernameScreenState extends State<UsernameScreen> {
                       borderRadius: BorderRadius.circular(
                           8.0), // Rounded corners for the border
                       borderSide: const BorderSide(
-                        color: Color.fromARGB(
-                            0, 60, 60, 60), // Color of the border
-                        width: 2.0, // Width of the border
+                        color: Color.fromARGB(0, 18, 18, 18),
+                        width: 2.0,
                       ),
                     ),
                   ),
