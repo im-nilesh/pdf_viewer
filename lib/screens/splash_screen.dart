@@ -39,7 +39,10 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF3C3C3C),
       body: Center(
-        child: Image.asset('assets/app_logo.png'), // Your splash screen logo
+        child: Image.asset(
+          'assets/images/app_logo.png',
+          width: 150,
+        ), // Your splash screen logo
       ),
     );
   }

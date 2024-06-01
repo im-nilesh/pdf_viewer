@@ -14,7 +14,7 @@ class MainScreen extends StatelessWidget {
         title: Center(
           child: Text(
             'Pdf Viewer',
-            style: GoogleFonts.dmSerifDisplay(
+            style: GoogleFonts.dmSans(
               textStyle: const TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.w600,
@@ -32,20 +32,44 @@ class MainScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 20),
-            const CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdi6qPKPphfLuH_-nqSiMKQ2NqGMZHlEBO-Q&s'),
-              radius: 40,
+            Row(
+              children: [
+                const CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      'https://plus.unsplash.com/premium_photo-1714841433964-2ea7e12d174a?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwbHVzLWZlZWR8MTF8fHxlbnwwfHx8fHw%3D'),
+                  radius: 40,
+                ),
+                const SizedBox(width: 20), // Space between avatar and greeting
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Greetings,',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      ' $username',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            SizedBox(height: 20),
-            Text(
-              'Greetings, $username!',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            const SizedBox(
+              height: 16,
             ),
+            const Divider(
+              thickness: 1,
+              color: Colors.black,
+            )
           ],
         ),
       ),
