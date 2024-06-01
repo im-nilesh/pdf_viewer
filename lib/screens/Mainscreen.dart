@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pdf_viewer/widgets/buttons.dart';
+import 'package:cupertino_icons/cupertino_icons.dart';
 
 class MainScreen extends StatelessWidget {
   final String username;
@@ -14,7 +16,7 @@ class MainScreen extends StatelessWidget {
         title: Center(
           child: Text(
             'Pdf Viewer',
-            style: GoogleFonts.dmSans(
+            style: GoogleFonts.dmSerifDisplay(
               textStyle: const TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.w600,
@@ -31,30 +33,30 @@ class MainScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               children: [
                 const CircleAvatar(
                   backgroundImage: NetworkImage(
-                      'https://plus.unsplash.com/premium_photo-1714841433964-2ea7e12d174a?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwbHVzLWZlZWR8MTF8fHxlbnwwfHx8fHw%3D'),
+                      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrt2iML7PyYcwzFKjbpaQUXA0tU9amO0k4aQ&s'),
                   radius: 40,
                 ),
                 const SizedBox(width: 20), // Space between avatar and greeting
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Greetings,',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 30,
+                    const Text(
+                      'Greetings',
+                      style: TextStyle(
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
                     Text(
-                      ' $username',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 20,
+                      username,
+                      style: const TextStyle(
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -63,13 +65,51 @@ class MainScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(
-              height: 16,
-            ),
+            const SizedBox(height: 20),
             const Divider(
-              thickness: 1,
               color: Colors.black,
-            )
+              thickness: 1,
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CustomButton(
+                    icon: Icons.document_scanner,
+                    text: 'Scan PDF from Camera',
+                    onPressed: () {
+                      // Define the action for button 1
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: CustomButton(
+                          icon: Icons.search,
+                          text: 'View PDF',
+                          onPressed: () {
+                            // Define the action for button 2
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: CustomButton(
+                          icon: Icons.sign_language,
+                          text: 'Sign a Document',
+                          onPressed: () {
+                            // Define the action for button 3
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
