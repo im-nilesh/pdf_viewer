@@ -46,7 +46,7 @@ class _MainScreenState extends State<MainScreen> {
               children: [
                 const CircleAvatar(
                   backgroundImage: NetworkImage(
-                      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrt2iML7PyYcwzFKjbpaQUXA0tU9amO0k4aQ&s'),
+                      'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg'),
                   radius: 40,
                 ),
                 const SizedBox(width: 20), // Space between avatar and greeting
