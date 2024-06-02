@@ -46,7 +46,10 @@ class _CameraScreenState extends State<CameraScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Camera'),
+        title: const Text(
+          'Camera',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.black,
       ),
       backgroundColor: const Color(0xFF3C3C3C),
@@ -80,7 +83,10 @@ class _CameraScreenState extends State<CameraScreen> {
                     textStyle: const TextStyle(fontSize: 18),
                   ),
                   onPressed: _pickImage,
-                  child: const Text('Take Picture'),
+                  child: const Text(
+                    'Take Picture',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -90,7 +96,10 @@ class _CameraScreenState extends State<CameraScreen> {
                     textStyle: const TextStyle(fontSize: 18),
                   ),
                   onPressed: _images.isNotEmpty ? _convertToPdf : null,
-                  child: const Text('Convert to PDF'),
+                  child: const Text(
+                    'Convert to PDF',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
