@@ -1,4 +1,4 @@
-// lib/widgets/custom_button.dart
+// lib/widgets/buttons.dart
 
 import 'package:flutter/material.dart';
 
@@ -18,24 +18,22 @@ class CustomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.black, // Button color
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        backgroundColor: Colors.black,
+        padding: const EdgeInsets.all(16.0),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Rounded corners
+          borderRadius:
+              BorderRadius.circular(10.0), // Adjust the radius as needed
         ),
       ),
       onPressed: onPressed,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.white, size: 32),
+          Icon(icon, color: Colors.white, size: 40),
           const SizedBox(height: 8),
           Text(
             text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
         ],
       ),

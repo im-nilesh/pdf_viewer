@@ -1,7 +1,10 @@
+// lib/screens/main_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:pdf_viewer/widgets/buttons.dart';
-import 'package:cupertino_icons/cupertino_icons.dart';
+
+import 'package:pdf_viewer/screens/camera_screen.dart';
+import 'package:pdf_viewer/widgets/customButton.dart';
 
 class MainScreen extends StatelessWidget {
   final String username;
@@ -46,7 +49,7 @@ class MainScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Greetings',
+                      'Greetings,',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -79,7 +82,11 @@ class MainScreen extends StatelessWidget {
                     icon: Icons.document_scanner,
                     text: 'Scan PDF from Camera',
                     onPressed: () {
-                      // Define the action for button 1
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CameraScreen()),
+                      );
                     },
                   ),
                   const SizedBox(height: 10),
