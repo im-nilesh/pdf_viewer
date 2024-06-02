@@ -24,7 +24,7 @@ class _MainScreenState extends State<MainScreen> {
         title: Center(
           child: Text(
             'Pdf Viewer',
-            style: GoogleFonts.dmSerifDisplay(
+            style: GoogleFonts.dmSans(
               textStyle: const TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.w600,
@@ -76,7 +76,7 @@ class _MainScreenState extends State<MainScreen> {
             const SizedBox(height: 20),
             const Divider(
               color: Colors.black,
-              thickness: 1,
+              thickness: 2,
             ),
             Expanded(
               child: Column(

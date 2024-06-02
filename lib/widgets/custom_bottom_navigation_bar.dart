@@ -42,7 +42,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
                   currentIndex == 1 ? Colors.blueGrey : Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius:
-                    BorderRadius.circular(0), // Adjust border radius as needed
+                    BorderRadius.circular(3), // Adjust border radius as needed
               ),
             ),
           ),
