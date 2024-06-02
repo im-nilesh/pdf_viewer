@@ -1,15 +1,20 @@
-// lib/screens/main_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'package:pdf_viewer/screens/camera_screen.dart';
 import 'package:pdf_viewer/widgets/customButton.dart';
+import 'package:pdf_viewer/widgets/custom_bottom_navigation_bar.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   final String username;
 
-  const MainScreen({super.key, required this.username});
+  const MainScreen({Key? key, required this.username}) : super(key: key);
+
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +62,7 @@ class MainScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      username,
+                      widget.username,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -85,7 +90,8 @@ class MainScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const CameraScreen()),
+                          builder: (context) => const CameraScreen(),
+                        ),
                       );
                     },
                   ),
@@ -119,6 +125,14 @@ class MainScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
       ),
     );
   }
