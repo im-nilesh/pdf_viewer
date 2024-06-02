@@ -1,5 +1,3 @@
-// custom_bottom_navigation_bar.dart
-
 import 'package:flutter/material.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
@@ -26,20 +24,22 @@ class CustomBottomNavigationBar extends StatelessWidget {
             child: const Text('Home', style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.black,
-              backgroundColor: currentIndex == 0 ? Colors.white : Colors.black,
+              backgroundColor:
+                  currentIndex == 0 ? Colors.blueGrey : Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius:
-                    BorderRadius.circular(0), // Adjust border radius as needed
+                    BorderRadius.circular(3), // Adjust border radius as needed
               ),
             ),
           ),
           ElevatedButton(
             onPressed: () => onTap(1),
             child:
-                const Text('List View', style: TextStyle(color: Colors.white)),
+                const Text('Recent PDF', style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.black,
-              backgroundColor: currentIndex == 1 ? Colors.white : Colors.black,
+              backgroundColor:
+                  currentIndex == 1 ? Colors.blueGrey : Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius:
                     BorderRadius.circular(0), // Adjust border radius as needed
