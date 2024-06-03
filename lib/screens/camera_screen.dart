@@ -42,6 +42,12 @@ class _CameraScreenState extends State<CameraScreen> {
     );
   }
 
+  void _deleteImage(int index) {
+    setState(() {
+      _images.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,7 +72,18 @@ class _CameraScreenState extends State<CameraScreen> {
                             crossAxisCount: 3),
                     itemCount: _images.length,
                     itemBuilder: (context, index) {
-                      return Image.file(_images[index]);
+                      return Stack(
+                        children: [
+                          Image.file(_images[index]),
+                          Positioned(
+                            right: 0,
+                            child: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteImage(index),
+                            ),
+                          ),
+                        ],
+                      );
                     },
                   ),
           ),
