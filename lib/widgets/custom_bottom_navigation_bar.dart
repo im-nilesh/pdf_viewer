@@ -34,8 +34,8 @@ class CustomBottomNavigationBar extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () => onTap(1),
-            child:
-                const Text('Recent PDF', style: TextStyle(color: Colors.white)),
+            child: const Text('Recent PDFs',
+                style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.black,
               backgroundColor:

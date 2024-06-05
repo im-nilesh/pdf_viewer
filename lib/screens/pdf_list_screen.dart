@@ -79,10 +79,14 @@ class _PdfListScreenState extends State<PdfListScreen> {
                   leading: Icon(
                     Icons.picture_as_pdf,
                     color: Colors.white,
+                    size: 32, // Adjust the size of the PDF icon
                   ),
                   title: Text(
                     _pdfFiles[index].path.split('/').last,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18, // Adjust the font size of the title
+                    ),
                   ),
                   onTap: () {
                     Navigator.push(

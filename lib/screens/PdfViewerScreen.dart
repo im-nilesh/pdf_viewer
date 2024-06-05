@@ -1,11 +1,15 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'dart:io';
 
+import 'package:pdf_viewer/screens/signatureScreem.dart';
+
 class PdfViewerScreen extends StatefulWidget {
   final File file;
+  Uint8List? signatureData;
 
-  PdfViewerScreen({required this.file});
+  PdfViewerScreen({required this.file, this.signatureData});
 
   @override
   _PdfViewerScreenState createState() => _PdfViewerScreenState();
@@ -16,6 +20,16 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   int _currentPage = 0;
   bool _isReady = false;
   String _errorMessage = '';
+  Offset _signaturePosition = Offset.zero;
+  bool _isSignatureVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.signatureData != null) {
+      _isSignatureVisible = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +37,23 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
       appBar: AppBar(
         title: Text(widget.file.path.split('/').last),
         actions: [
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () async {
+              final signatureImage = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SignatureScreen(),
+                ),
+              );
+              if (signatureImage != null) {
+                setState(() {
+                  widget.signatureData = signatureImage;
+                  _isSignatureVisible = true;
+                });
+              }
+            },
+          ),
           if (_isReady && _totalPages > 0)
             Center(
               child: Padding(
@@ -72,8 +103,38 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
             Center(
               child: Text(_errorMessage),
             ),
+          if (_isSignatureVisible && widget.signatureData != null)
+            Positioned(
+              left: _signaturePosition.dx,
+              top: _signaturePosition.dy,
+              child: Draggable(
+                feedback: Image.memory(widget.signatureData!,
+                    width: 150, height: 100),
+                childWhenDragging: Container(),
+                onDraggableCanceled: (velocity, offset) {
+                  setState(() {
+                    _signaturePosition = offset;
+                  });
+                },
+                child: Image.memory(widget.signatureData!,
+                    width: 150, height: 100),
+              ),
+            ),
         ],
       ),
+      floatingActionButton: _isSignatureVisible
+          ? FloatingActionButton(
+              child: Icon(Icons.save),
+              onPressed: () {
+                _savePdfWithSignature();
+              },
+            )
+          : null,
     );
+  }
+
+  void _savePdfWithSignature() {
+    // Implement your save PDF functionality here
+    // This method should save the signature position and embed it into the PDF file
   }
 }

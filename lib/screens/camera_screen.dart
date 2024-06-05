@@ -197,25 +197,6 @@ class _CameraScreenState extends State<CameraScreen> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                textStyle: const TextStyle(fontSize: 18),
-              ),
-              onPressed: () {
-                // Add your scan and take picture logic here
-                _pickImage();
-              },
-              child: const Text(
-                'Scan and Take Picture',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
         ],
       ),
     );

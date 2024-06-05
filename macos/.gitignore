@@ -5,3 +5,5 @@
 # Xcode-related
 **/dgph
 **/xcuserdata/
+android\key.properties
+android\upload-keystore.jks

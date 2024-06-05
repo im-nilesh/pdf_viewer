@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pdf_viewer/screens/Select_a_file_toSign.dart';
 import 'package:pdf_viewer/screens/camera_screen.dart';
-import 'package:pdf_viewer/screens/pdf_list_screen.dart'; // Import the new screen
+import 'package:pdf_viewer/screens/pdf_list_screen.dart'; // Import the PDF list screen
 
 import 'package:pdf_viewer/widgets/customButton.dart';
 import 'package:pdf_viewer/widgets/custom_bottom_navigation_bar.dart';
@@ -109,8 +110,7 @@ class _MainScreenState extends State<MainScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    PdfListScreen(), // Navigate to the new screen
+                                builder: (context) => PdfListScreen(),
                               ),
                             );
                           },
@@ -122,7 +122,13 @@ class _MainScreenState extends State<MainScreen> {
                           icon: Icons.sign_language,
                           text: 'Sign a Document',
                           onPressed: () {
-                            // Define the action for button 3
+                            // Navigate to the PDF view screen
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PdfViewScreen(),
+                              ),
+                            );
                           },
                         ),
                       ),
