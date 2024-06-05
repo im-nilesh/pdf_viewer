@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf_viewer/screens/PdfViewerScreen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PdfListScreen extends StatefulWidget {
@@ -84,7 +85,13 @@ class _PdfListScreenState extends State<PdfListScreen> {
                     style: const TextStyle(color: Colors.white),
                   ),
                   onTap: () {
-                    // Handle PDF file tap, you can open the PDF file here
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            PdfViewerScreen(file: _pdfFiles[index]),
+                      ),
+                    );
                   },
                 );
               },
