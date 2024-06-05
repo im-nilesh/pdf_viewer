@@ -22,6 +22,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   String _errorMessage = '';
   Offset _signaturePosition = Offset.zero;
   bool _isSignatureVisible = false;
+  int _rotationAngle = 0;
 
   @override
   void initState() {
@@ -29,6 +30,12 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
     if (widget.signatureData != null) {
       _isSignatureVisible = true;
     }
+  }
+
+  void _rotatePdf() {
+    setState(() {
+      _rotationAngle = (_rotationAngle + 90) % 360;
+    });
   }
 
   @override
@@ -54,6 +61,10 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               }
             },
           ),
+          IconButton(
+            icon: Icon(Icons.rotate_right),
+            onPressed: _rotatePdf,
+          ),
           if (_isReady && _totalPages > 0)
             Center(
               child: Padding(
@@ -65,35 +76,38 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
       ),
       body: Stack(
         children: [
-          PDFView(
-            filePath: widget.file.path,
-            autoSpacing: false,
-            pageFling: false,
-            pageSnap: false,
-            onRender: (_pages) {
-              setState(() {
-                _totalPages = _pages!;
-                _isReady = true;
-              });
-            },
-            onError: (error) {
-              setState(() {
-                _errorMessage = error.toString();
-              });
-              print(error.toString());
-            },
-            onPageError: (page, error) {
-              setState(() {
-                _errorMessage = '$page: ${error.toString()}';
-              });
-              print('$page: ${error.toString()}');
-            },
-            onPageChanged: (page, total) {
-              setState(() {
-                _currentPage = page! + 1; // page is zero-based, so adding 1
-                _totalPages = total!;
-              });
-            },
+          Transform.rotate(
+            angle: _rotationAngle * 3.1415926535 / 180,
+            child: PDFView(
+              filePath: widget.file.path,
+              autoSpacing: false,
+              pageFling: false,
+              pageSnap: false,
+              onRender: (_pages) {
+                setState(() {
+                  _totalPages = _pages!;
+                  _isReady = true;
+                });
+              },
+              onError: (error) {
+                setState(() {
+                  _errorMessage = error.toString();
+                });
+                print(error.toString());
+              },
+              onPageError: (page, error) {
+                setState(() {
+                  _errorMessage = '$page: ${error.toString()}';
+                });
+                print('$page: ${error.toString()}');
+              },
+              onPageChanged: (page, total) {
+                setState(() {
+                  _currentPage = page! + 1; // page is zero-based, so adding 1
+                  _totalPages = total!;
+                });
+              },
+            ),
           ),
           if (!_isReady)
             Center(
