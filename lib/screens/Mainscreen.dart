@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pdf_viewer/screens/Select_a_file_toSign.dart';
 import 'package:pdf_viewer/screens/camera_screen.dart';
 import 'package:pdf_viewer/screens/pdf_list_screen.dart'; // Import the PDF list screen
-
 import 'package:pdf_viewer/widgets/customButton.dart';
 import 'package:pdf_viewer/widgets/custom_bottom_navigation_bar.dart';
 
@@ -18,6 +20,43 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  File? _imageFile;
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  void _showChangeImageDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Change User Image?'),
+        content: const Text('Do you want to change the user image?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _pickImage();
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,10 +86,16 @@ class _MainScreenState extends State<MainScreen> {
             const SizedBox(height: 20),
             Row(
               children: [
-                const CircleAvatar(
-                  backgroundImage: NetworkImage(
-                      'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg'),
-                  radius: 40,
+                GestureDetector(
+                  onTap: _showChangeImageDialog,
+                  child: CircleAvatar(
+                    backgroundImage: _imageFile != null
+                        ? FileImage(_imageFile!)
+                        : const NetworkImage(
+                            'https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg',
+                          ) as ImageProvider,
+                    radius: 40,
+                  ),
                 ),
                 const SizedBox(width: 20), // Space between avatar and greeting
                 Column(
