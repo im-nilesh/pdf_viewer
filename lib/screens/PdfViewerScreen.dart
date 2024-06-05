@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui' as ui; // Import dart:ui for PointMode
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'dart:io';
@@ -23,6 +24,8 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   Offset _signaturePosition = Offset.zero;
   bool _isSignatureVisible = false;
   int _rotationAngle = 0;
+  bool _isDrawing = false;
+  List<Offset> _points = [];
 
   @override
   void initState() {
@@ -35,6 +38,12 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   void _rotatePdf() {
     setState(() {
       _rotationAngle = (_rotationAngle + 90) % 360;
+    });
+  }
+
+  void _toggleDrawing() {
+    setState(() {
+      _isDrawing = !_isDrawing;
     });
   }
 
@@ -64,6 +73,10 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
           IconButton(
             icon: Icon(Icons.rotate_right),
             onPressed: _rotatePdf,
+          ),
+          IconButton(
+            icon: Icon(_isDrawing ? Icons.brush : Icons.edit),
+            onPressed: _toggleDrawing,
           ),
           if (_isReady && _totalPages > 0)
             Center(
@@ -134,6 +147,22 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                     width: 150, height: 100),
               ),
             ),
+          if (_isDrawing)
+            GestureDetector(
+              onPanUpdate: (details) {
+                setState(() {
+                  RenderBox renderBox = context.findRenderObject() as RenderBox;
+                  _points.add(renderBox.globalToLocal(details.globalPosition));
+                });
+              },
+              onPanEnd: (details) {
+                _points.add(Offset.zero);
+              },
+              child: CustomPaint(
+                size: Size.infinite,
+                painter: DrawingPainter(_points),
+              ),
+            ),
         ],
       ),
       floatingActionButton: _isSignatureVisible
@@ -150,5 +179,33 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   void _savePdfWithSignature() {
     // Implement your save PDF functionality here
     // This method should save the signature position and embed it into the PDF file
+  }
+}
+
+class DrawingPainter extends CustomPainter {
+  final List<Offset> points;
+
+  DrawingPainter(this.points);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.red
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 5.0;
+
+    for (int i = 0; i < points.length - 1; i++) {
+      if (points[i] != Offset.zero && points[i + 1] != Offset.zero) {
+        canvas.drawLine(points[i], points[i + 1], paint);
+      } else if (points[i] != Offset.zero && points[i + 1] == Offset.zero) {
+        canvas.drawPoints(ui.PointMode.points, [points[i]],
+            paint); // Use PointMode from dart:ui
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }
