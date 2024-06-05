@@ -1,5 +1,3 @@
-// permission_utils.dart
-
 import 'package:permission_handler/permission_handler.dart';
 
 class PermissionUtils {

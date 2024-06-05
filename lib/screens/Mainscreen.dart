@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pdf_viewer/screens/camera_screen.dart';
+import 'package:pdf_viewer/screens/pdf_list_screen.dart'; // Import the new screen
+
 import 'package:pdf_viewer/widgets/customButton.dart';
 import 'package:pdf_viewer/widgets/custom_bottom_navigation_bar.dart';
 
@@ -104,7 +106,13 @@ class _MainScreenState extends State<MainScreen> {
                           icon: Icons.search,
                           text: 'View PDF',
                           onPressed: () {
-                            // Define the action for button 2
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    PdfListScreen(), // Navigate to the new screen
+                              ),
+                            );
                           },
                         ),
                       ),
