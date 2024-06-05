@@ -75,6 +75,10 @@ class _PdfListScreenState extends State<PdfListScreen> {
               itemCount: _pdfFiles.length,
               itemBuilder: (context, index) {
                 return ListTile(
+                  leading: Icon(
+                    Icons.picture_as_pdf,
+                    color: Colors.white,
+                  ),
                   title: Text(
                     _pdfFiles[index].path.split('/').last,
                     style: const TextStyle(color: Colors.white),
