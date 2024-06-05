@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'dart:ui' as ui; // Import dart:ui for PointMode
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'dart:io';
@@ -25,7 +25,8 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   bool _isSignatureVisible = false;
   int _rotationAngle = 0;
   bool _isDrawing = false;
-  List<Offset> _points = [];
+  List<List<Offset>> _drawings = [];
+  List<Offset> _currentDrawing = [];
 
   @override
   void initState() {
@@ -44,7 +45,40 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   void _toggleDrawing() {
     setState(() {
       _isDrawing = !_isDrawing;
+      if (!_isDrawing) {
+        _currentDrawing = [];
+      }
     });
+  }
+
+  void _undoLastDrawing() {
+    setState(() {
+      if (_drawings.isNotEmpty) {
+        _drawings.removeLast();
+      }
+    });
+  }
+
+  void _selectOption(String option) async {
+    switch (option) {
+      case 'Sign':
+        final signatureImage = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SignatureScreen(),
+          ),
+        );
+        if (signatureImage != null) {
+          setState(() {
+            widget.signatureData = signatureImage;
+            _isSignatureVisible = true;
+          });
+        }
+        break;
+      case 'Draw':
+        _toggleDrawing();
+        break;
+    }
   }
 
   @override
@@ -54,29 +88,19 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
         title: Text(widget.file.path.split('/').last),
         actions: [
           IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () async {
-              final signatureImage = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SignatureScreen(),
-                ),
-              );
-              if (signatureImage != null) {
-                setState(() {
-                  widget.signatureData = signatureImage;
-                  _isSignatureVisible = true;
-                });
-              }
-            },
-          ),
-          IconButton(
             icon: Icon(Icons.rotate_right),
             onPressed: _rotatePdf,
           ),
-          IconButton(
-            icon: Icon(_isDrawing ? Icons.brush : Icons.edit),
-            onPressed: _toggleDrawing,
+          PopupMenuButton<String>(
+            onSelected: _selectOption,
+            itemBuilder: (BuildContext context) {
+              return {'Sign', 'Draw'}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
           ),
           if (_isReady && _totalPages > 0)
             Center(
@@ -116,7 +140,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               },
               onPageChanged: (page, total) {
                 setState(() {
-                  _currentPage = page! + 1; // page is zero-based, so adding 1
+                  _currentPage = page! + 1;
                   _totalPages = total!;
                 });
               },
@@ -152,27 +176,48 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               onPanUpdate: (details) {
                 setState(() {
                   RenderBox renderBox = context.findRenderObject() as RenderBox;
-                  _points.add(renderBox.globalToLocal(details.globalPosition));
+                  _currentDrawing
+                      .add(renderBox.globalToLocal(details.globalPosition));
                 });
               },
               onPanEnd: (details) {
-                _points.add(Offset.zero);
+                setState(() {
+                  _drawings.add(List.from(_currentDrawing));
+                  _currentDrawing = [];
+                });
               },
               child: CustomPaint(
                 size: Size.infinite,
-                painter: DrawingPainter(_points),
+                painter: DrawingPainter(_drawings, _currentDrawing),
               ),
             ),
         ],
       ),
-      floatingActionButton: _isSignatureVisible
-          ? FloatingActionButton(
-              child: Icon(Icons.save),
-              onPressed: () {
-                _savePdfWithSignature();
-              },
+      floatingActionButton: _isDrawing
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton(
+                  child: Icon(Icons.undo),
+                  onPressed: _undoLastDrawing,
+                ),
+                SizedBox(width: 16),
+                FloatingActionButton(
+                  child: Icon(Icons.save),
+                  onPressed: () {
+                    _savePdfWithSignature();
+                  },
+                ),
+              ],
             )
-          : null,
+          : _isSignatureVisible
+              ? FloatingActionButton(
+                  child: Icon(Icons.save),
+                  onPressed: () {
+                    _savePdfWithSignature();
+                  },
+                )
+              : null,
     );
   }
 
@@ -183,9 +228,10 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
 }
 
 class DrawingPainter extends CustomPainter {
-  final List<Offset> points;
+  final List<List<Offset>> drawings;
+  final List<Offset> currentDrawing;
 
-  DrawingPainter(this.points);
+  DrawingPainter(this.drawings, this.currentDrawing);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -194,12 +240,23 @@ class DrawingPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeWidth = 5.0;
 
-    for (int i = 0; i < points.length - 1; i++) {
-      if (points[i] != Offset.zero && points[i + 1] != Offset.zero) {
-        canvas.drawLine(points[i], points[i + 1], paint);
-      } else if (points[i] != Offset.zero && points[i + 1] == Offset.zero) {
-        canvas.drawPoints(ui.PointMode.points, [points[i]],
-            paint); // Use PointMode from dart:ui
+    for (var drawing in drawings) {
+      for (int i = 0; i < drawing.length - 1; i++) {
+        if (drawing[i] != Offset.zero && drawing[i + 1] != Offset.zero) {
+          canvas.drawLine(drawing[i], drawing[i + 1], paint);
+        } else if (drawing[i] != Offset.zero && drawing[i + 1] == Offset.zero) {
+          canvas.drawPoints(ui.PointMode.points, [drawing[i]], paint);
+        }
+      }
+    }
+
+    for (int i = 0; i < currentDrawing.length - 1; i++) {
+      if (currentDrawing[i] != Offset.zero &&
+          currentDrawing[i + 1] != Offset.zero) {
+        canvas.drawLine(currentDrawing[i], currentDrawing[i + 1], paint);
+      } else if (currentDrawing[i] != Offset.zero &&
+          currentDrawing[i + 1] == Offset.zero) {
+        canvas.drawPoints(ui.PointMode.points, [currentDrawing[i]], paint);
       }
     }
   }
