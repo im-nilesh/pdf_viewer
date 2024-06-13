@@ -2,9 +2,9 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'dart:io';
-
 import 'package:pdf_viewer/screens/signatureScreem.dart';
+import 'package:pdf_viewer/widgets/DrawingPainter.dart';
+import 'dart:io';
 
 class PdfViewerScreen extends StatefulWidget {
   final File file;
@@ -27,6 +27,8 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   bool _isDrawing = false;
   List<List<Offset>> _drawings = [];
   List<Offset> _currentDrawing = [];
+  bool isSignSelected = false;
+  bool isDrawSelected = false;
 
   @override
   void initState() {
@@ -45,6 +47,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   void _toggleDrawing() {
     setState(() {
       _isDrawing = !_isDrawing;
+      isDrawSelected = _isDrawing;
       if (!_isDrawing) {
         _currentDrawing = [];
       }
@@ -72,6 +75,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
           setState(() {
             widget.signatureData = signatureImage;
             _isSignatureVisible = true;
+            isSignSelected = true;
           });
         }
         break;
@@ -95,9 +99,21 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
             onSelected: _selectOption,
             itemBuilder: (BuildContext context) {
               return {'Sign', 'Draw'}.map((String choice) {
+                bool isSelected = (choice == 'Sign' && isSignSelected) ||
+                    (choice == 'Draw' && isDrawSelected);
                 return PopupMenuItem<String>(
                   value: choice,
-                  child: Text(choice),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(choice),
+                      if (isSelected)
+                        Icon(
+                          Icons.check,
+                          color: Colors.green,
+                        ),
+                    ],
+                  ),
                 );
               }).toList();
             },
@@ -224,45 +240,5 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   void _savePdfWithSignature() {
     // Implement your save PDF functionality here
     // This method should save the signature position and embed it into the PDF file
-  }
-}
-
-class DrawingPainter extends CustomPainter {
-  final List<List<Offset>> drawings;
-  final List<Offset> currentDrawing;
-
-  DrawingPainter(this.drawings, this.currentDrawing);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.red
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 5.0;
-
-    for (var drawing in drawings) {
-      for (int i = 0; i < drawing.length - 1; i++) {
-        if (drawing[i] != Offset.zero && drawing[i + 1] != Offset.zero) {
-          canvas.drawLine(drawing[i], drawing[i + 1], paint);
-        } else if (drawing[i] != Offset.zero && drawing[i + 1] == Offset.zero) {
-          canvas.drawPoints(ui.PointMode.points, [drawing[i]], paint);
-        }
-      }
-    }
-
-    for (int i = 0; i < currentDrawing.length - 1; i++) {
-      if (currentDrawing[i] != Offset.zero &&
-          currentDrawing[i + 1] != Offset.zero) {
-        canvas.drawLine(currentDrawing[i], currentDrawing[i + 1], paint);
-      } else if (currentDrawing[i] != Offset.zero &&
-          currentDrawing[i + 1] == Offset.zero) {
-        canvas.drawPoints(ui.PointMode.points, [currentDrawing[i]], paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
   }
 }

@@ -1,13 +1,14 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pdf_viewer/screens/Select_a_file_toSign.dart';
-import 'package:pdf_viewer/screens/camera_screen.dart';
-import 'package:pdf_viewer/screens/pdf_list_screen.dart'; // Import the PDF list screen
 import 'package:pdf_viewer/widgets/customButton.dart';
 import 'package:pdf_viewer/widgets/custom_bottom_navigation_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+
+import 'camera_screen.dart';
+import 'pdf_list_screen.dart'; // Import the PDF list screen
+import 'Select_a_file_toSign.dart';
 
 class MainScreen extends StatefulWidget {
   final String username;
@@ -22,6 +23,27 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   File? _imageFile;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
+
+  Future<void> _loadImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final imagePath = prefs.getString('avatar_image');
+    if (imagePath != null) {
+      setState(() {
+        _imageFile = File(imagePath);
+      });
+    }
+  }
+
+  Future<void> _saveImage(String path) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('avatar_image', path);
+  }
+
   Future<void> _pickImage() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -30,6 +52,7 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
+      await _saveImage(pickedFile.path);
     }
   }
 
@@ -143,7 +166,9 @@ class _MainScreenState extends State<MainScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 10),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.01,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -164,7 +189,7 @@ class _MainScreenState extends State<MainScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: CustomButton(
-                          icon: Icons.sign_language,
+                          icon: Icons.edit,
                           text: 'Sign a Document',
                           onPressed: () {
                             // Navigate to the PDF view screen

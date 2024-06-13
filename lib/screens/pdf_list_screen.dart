@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf_viewer/screens/PdfViewerScreen.dart';
+import 'package:pdf_viewer/screens/SearchScreen.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'PdfViewerScreen.dart';
 
 class PdfListScreen extends StatefulWidget {
   @override
@@ -63,6 +64,20 @@ class _PdfListScreenState extends State<PdfListScreen> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.search,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: PdfSearchDelegate(_pdfFiles),
+              );
+            },
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFF3C3C3C),
       body: _pdfFiles.isEmpty
@@ -72,33 +87,46 @@ class _PdfListScreenState extends State<PdfListScreen> {
                 style: TextStyle(color: Colors.white),
               ),
             )
-          : ListView.builder(
-              itemCount: _pdfFiles.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: Icon(
-                    Icons.picture_as_pdf,
-                    color: Colors.white,
-                    size: 32, // Adjust the size of the PDF icon
-                  ),
-                  title: Text(
-                    _pdfFiles[index].path.split('/').last,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18, // Adjust the font size of the title
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            PdfViewerScreen(file: _pdfFiles[index]),
+          : Padding(
+              padding: const EdgeInsets.all(10),
+              child: ListView.builder(
+                itemCount: _pdfFiles.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.white.withOpacity(0.2),
+                          width: 1,
+                        ),
                       ),
-                    );
-                  },
-                );
-              },
+                    ),
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.picture_as_pdf,
+                        color: Colors.white,
+                        size: 48, // Adjusted the size of the PDF icon
+                      ),
+                      title: Text(
+                        _pdfFiles[index].path.split('/').last,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20, // Adjusted the font size of the title
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                PdfViewerScreen(file: _pdfFiles[index]),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
     );
   }
