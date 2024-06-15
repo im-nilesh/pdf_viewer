@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf_viewer/widgets/pdf_utils.dart';
-import 'package:pdf_viewer/widgets/permission_utils.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class CameraScreen extends StatefulWidget {
@@ -40,22 +39,27 @@ class _CameraScreenState extends State<CameraScreen> {
       pdfName = 'Document';
     }
 
-    try {
-      final status = await PermissionUtils.requestPermissions();
-      if (status == PermissionStatus.granted) {
-        await PdfUtils.savePdfUsingSaf(pdf, pdfName);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('PDF Saved Successfully')),
-        );
-        Navigator.pop(context); // Navigate back to MainScreen
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Permission denied to save PDF')),
-        );
+    if (await Permission.storage.request().isGranted) {
+      final directory = await getExternalStorageDirectory();
+      if (directory != null) {
+        final filePath = '${directory.path}/$pdfName.pdf';
+        final file = File(filePath);
+
+        try {
+          await file.writeAsBytes(await pdf.save());
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('PDF Saved Successfully')),
+          );
+          Navigator.pop(context); // Navigate back to MainScreen
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save PDF')),
+          );
+        }
       }
-    } catch (e) {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save PDF')),
+        SnackBar(content: Text('Permission denied to save PDF')),
       );
     }
   }
@@ -66,11 +70,16 @@ class _CameraScreenState extends State<CameraScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Save PDF'),
+          backgroundColor: Colors.black,
+          title: Text(
+            'Save PDF',
+            style: TextStyle(color: Colors.white),
+          ),
           content: TextField(
             controller: controller,
             decoration: InputDecoration(
               hintText: 'Enter PDF name',
+              hintStyle: TextStyle(color: Colors.white),
             ),
           ),
           actions: [
@@ -78,7 +87,10 @@ class _CameraScreenState extends State<CameraScreen> {
               onPressed: () {
                 Navigator.of(context).pop(controller.text);
               },
-              child: Text('Save'),
+              child: Text(
+                'Save',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         );

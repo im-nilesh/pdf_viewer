@@ -5,6 +5,7 @@ import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:pdf_viewer/screens/signatureScreem.dart';
 import 'package:pdf_viewer/widgets/DrawingPainter.dart';
 import 'dart:io';
+import 'package:flutter/gestures.dart';
 
 class PdfViewerScreen extends StatefulWidget {
   final File file;
@@ -29,6 +30,9 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   List<Offset> _currentDrawing = [];
   bool isSignSelected = false;
   bool isDrawSelected = false;
+  double _signatureScale = 1.0;
+  Offset _lastFocalPoint = Offset.zero;
+  Offset _startFocalPoint = Offset.zero;
 
   @override
   void initState() {
@@ -85,16 +89,35 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
     }
   }
 
+  void _increaseSize() {
+    setState(() {
+      _signatureScale += 0.1;
+    });
+  }
+
+  void _decreaseSize() {
+    setState(() {
+      _signatureScale -= 0.1;
+    });
+  }
+
+  void _rotateSignature() {
+    setState(() {
+      _rotationAngle = (_rotationAngle + 90) % 360;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.file.path.split('/').last),
         actions: [
-          IconButton(
-            icon: Icon(Icons.rotate_right),
-            onPressed: _rotatePdf,
-          ),
+          if (_isSignatureVisible)
+            IconButton(
+              icon: Icon(Icons.rotate_right),
+              onPressed: _rotateSignature,
+            ),
           PopupMenuButton<String>(
             onSelected: _selectOption,
             itemBuilder: (BuildContext context) {
@@ -118,6 +141,16 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               }).toList();
             },
           ),
+          if (_isSignatureVisible)
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: _increaseSize,
+            ),
+          if (_isSignatureVisible)
+            IconButton(
+              icon: Icon(Icons.remove),
+              onPressed: _decreaseSize,
+            ),
           if (_isReady && _totalPages > 0)
             Center(
               child: Padding(
@@ -174,32 +207,53 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
             Positioned(
               left: _signaturePosition.dx,
               top: _signaturePosition.dy,
-              child: Draggable(
-                feedback: Image.memory(widget.signatureData!,
-                    width: 150, height: 100),
-                childWhenDragging: Container(),
-                onDraggableCanceled: (velocity, offset) {
+              child: GestureDetector(
+                onScaleStart: (details) {
+                  _startFocalPoint = details.focalPoint;
+                  _lastFocalPoint = details.focalPoint;
+                },
+                onScaleUpdate: (details) {
                   setState(() {
-                    _signaturePosition = offset;
+                    _signatureScale *= details.scale;
+                    _signaturePosition += details.focalPoint - _lastFocalPoint;
+                    _lastFocalPoint = details.focalPoint;
                   });
                 },
-                child: Image.memory(widget.signatureData!,
-                    width: 150, height: 100),
+                child: Transform.scale(
+                  scale: _signatureScale,
+                  child: Transform.rotate(
+                    angle: _rotationAngle * 3.1415926535 / 180,
+                    child: Image.memory(
+                      widget.signatureData!,
+                      width: 150,
+                      height: 100,
+                    ),
+                  ),
+                ),
               ),
             ),
           if (_isDrawing)
             GestureDetector(
-              onPanUpdate: (details) {
+              onPanStart: (details) {
+                RenderBox renderBox = context.findRenderObject() as RenderBox;
+                Offset localPosition =
+                    renderBox.globalToLocal(details.globalPosition);
                 setState(() {
-                  RenderBox renderBox = context.findRenderObject() as RenderBox;
-                  _currentDrawing
-                      .add(renderBox.globalToLocal(details.globalPosition));
+                  _currentDrawing = [localPosition];
+                  _drawings.add(_currentDrawing);
+                });
+              },
+              onPanUpdate: (details) {
+                RenderBox renderBox = context.findRenderObject() as RenderBox;
+                Offset localPosition =
+                    renderBox.globalToLocal(details.globalPosition);
+                setState(() {
+                  _currentDrawing.add(localPosition);
                 });
               },
               onPanEnd: (details) {
                 setState(() {
-                  _drawings.add(List.from(_currentDrawing));
-                  _currentDrawing = [];
+                  _currentDrawing.clear();
                 });
               },
               child: CustomPaint(

@@ -1,18 +1,35 @@
 import 'dart:io';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:android_intent_plus/android_intent.dart';
-import 'package:android_intent_plus/flag.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class PdfUtils {
-  static Future<void> savePdfUsingSaf(pw.Document pdf, String fileName) async {
-    final status = await Permission.storage.request();
-    if (status == PermissionStatus.granted) {
-      final output = Directory('/storage/emulated/0/Download');
-      final pdfFile = File("${output.path}/$fileName.pdf");
-      await pdfFile.writeAsBytes(await pdf.save());
-    } else {
-      throw Exception('Permission denied');
+Future<File?> createAndSavePdf() async {
+  // Check storage permission
+  if (await Permission.storage.request().isGranted) {
+    final pdf = pw.Document();
+
+    // Add content to the PDF
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) => pw.Center(
+          child: pw.Text('Hello World'),
+        ),
+      ),
+    );
+
+    // Get the directory to save the file
+    final directory = await getExternalStorageDirectory();
+    if (directory != null) {
+      final filePath = '${directory.path}/example.pdf';
+      final file = File(filePath);
+
+      // Save the PDF file
+      await file.writeAsBytes(await pdf.save());
+
+      return file;
     }
+  } else {
+    // If permission is denied, show a snackbar or a dialog to the user
+    return null;
   }
 }

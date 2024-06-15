@@ -3,12 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdf_viewer/widgets/customButton.dart';
 import 'package:pdf_viewer/widgets/custom_bottom_navigation_bar.dart';
+import 'package:pdf_viewer/widgets/pdf_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
-
 import 'camera_screen.dart';
-import 'pdf_list_screen.dart'; // Import the PDF list screen
+import 'pdf_list_screen.dart';
 import 'Select_a_file_toSign.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MainScreen extends StatefulWidget {
   final String username;
@@ -56,12 +57,43 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  Future<void> _checkStoragePermission() async {
+    final status = await Permission.storage.status;
+    if (!status.isGranted) {
+      final result = await Permission.storage.request();
+      if (!result.isGranted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Storage permission is required to save the PDF.',
+              style: TextStyle(color: Colors.white),
+            ),
+            action: SnackBarAction(
+              label: 'Settings',
+              onPressed: () {
+                openAppSettings();
+              },
+            ),
+          ),
+        );
+      }
+    }
+  }
+
   void _showChangeImageDialog() {
     showDialog(
+      barrierColor: Colors.black.withOpacity(0.6),
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Change User Image?'),
-        content: const Text('Do you want to change the user image?'),
+        backgroundColor: Colors.black,
+        title: const Text(
+          'Change User Image?',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'Do you want to change the user image?',
+          style: TextStyle(color: Colors.white),
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -79,6 +111,23 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _createAndSavePdf() async {
+    final file = await createAndSavePdf();
+    if (file != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('PDF saved at ${file.path}'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to save PDF. Please check permissions.'),
+        ),
+      );
+    }
   }
 
   @override
@@ -120,7 +169,7 @@ class _MainScreenState extends State<MainScreen> {
                     radius: 40,
                   ),
                 ),
-                const SizedBox(width: 20), // Space between avatar and greeting
+                const SizedBox(width: 20),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -191,8 +240,8 @@ class _MainScreenState extends State<MainScreen> {
                         child: CustomButton(
                           icon: Icons.edit,
                           text: 'Sign a Document',
-                          onPressed: () {
-                            // Navigate to the PDF view screen
+                          onPressed: () async {
+                            await _checkStoragePermission();
                             Navigator.push(
                               context,
                               MaterialPageRoute(

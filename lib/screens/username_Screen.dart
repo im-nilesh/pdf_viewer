@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:pdf_viewer/screens/Mainscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,13 +53,14 @@ class _UsernameScreenState extends State<UsernameScreen> {
               ),
               const SizedBox(height: 10),
               TextField(
+                style: TextStyle(color: Colors.white),
                 controller: _usernameController,
                 decoration: InputDecoration(
                   hintText: 'Username',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: const BorderSide(
-                      color: Colors.grey,
+                      color: Colors.black,
                       width: 2.0,
                     ),
                   ),
