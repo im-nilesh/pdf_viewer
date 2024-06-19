@@ -1,15 +1,18 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf_viewer/widgets/customButton.dart';
 import 'package:pdf_viewer/widgets/custom_bottom_navigation_bar.dart';
-import 'package:pdf_viewer/widgets/pdf_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
 import 'camera_screen.dart';
 import 'pdf_list_screen.dart';
 import 'Select_a_file_toSign.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:open_file/open_file.dart';
 
 class MainScreen extends StatefulWidget {
   final String username;
@@ -113,21 +116,36 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Future<void> _createAndSavePdf() async {
-    final file = await createAndSavePdf();
-    if (file != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('PDF saved at ${file.path}'),
+  Future<void> _createAndSavePdf(BuildContext context) async {
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) => pw.Center(
+          child: pw.Text('Hello World', style: pw.TextStyle(fontSize: 40)),
         ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to save PDF. Please check permissions.'),
-        ),
-      );
-    }
+      ),
+    );
+
+    // Get temporary directory path
+    final tempDir = await getTemporaryDirectory();
+    final tempPath = tempDir.path;
+
+    // Construct the file path
+    final fileName = 'example.pdf';
+    final filePath = '$tempPath/$fileName';
+
+    // Save the PDF file
+    final file = File(filePath);
+    await file.writeAsBytes(await pdf.save());
+
+    // Open the saved PDF file
+    OpenFile.open(filePath);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('PDF saved at $filePath'),
+      ),
+    );
   }
 
   @override
@@ -241,13 +259,7 @@ class _MainScreenState extends State<MainScreen> {
                           icon: Icons.edit,
                           text: 'Sign a Document',
                           onPressed: () async {
-                            await _checkStoragePermission();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PdfViewScreen(),
-                              ),
-                            );
+                            await _createAndSavePdf(context);
                           },
                         ),
                       ),

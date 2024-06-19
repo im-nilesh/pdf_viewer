@@ -51,6 +51,7 @@ dependencies:
   flutter_signature_pad: ^3.0.1
   printing: ^5.12.0
   flutter_launcher_icons: ^0.13.1
+  open_file: ^3.3.2
 
 dev_dependencies:
   flutter_test:

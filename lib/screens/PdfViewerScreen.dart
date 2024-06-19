@@ -1,11 +1,11 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:pdf_viewer/screens/signatureScreem.dart';
-import 'package:pdf_viewer/widgets/DrawingPainter.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'dart:io';
-import 'package:flutter/gestures.dart';
 
 class PdfViewerScreen extends StatefulWidget {
   final File file;
@@ -208,11 +208,11 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               left: _signaturePosition.dx,
               top: _signaturePosition.dy,
               child: GestureDetector(
-                onScaleStart: (details) {
+                onScaleStart: (ScaleStartDetails details) {
                   _startFocalPoint = details.focalPoint;
                   _lastFocalPoint = details.focalPoint;
                 },
-                onScaleUpdate: (details) {
+                onScaleUpdate: (ScaleUpdateDetails details) {
                   setState(() {
                     _signatureScale *= details.scale;
                     _signaturePosition += details.focalPoint - _lastFocalPoint;
@@ -234,7 +234,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
             ),
           if (_isDrawing)
             GestureDetector(
-              onPanStart: (details) {
+              onPanStart: (DragStartDetails details) {
                 RenderBox renderBox = context.findRenderObject() as RenderBox;
                 Offset localPosition =
                     renderBox.globalToLocal(details.globalPosition);
@@ -243,7 +243,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                   _drawings.add(_currentDrawing);
                 });
               },
-              onPanUpdate: (details) {
+              onPanUpdate: (DragUpdateDetails details) {
                 RenderBox renderBox = context.findRenderObject() as RenderBox;
                 Offset localPosition =
                     renderBox.globalToLocal(details.globalPosition);
@@ -251,7 +251,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                   _currentDrawing.add(localPosition);
                 });
               },
-              onPanEnd: (details) {
+              onPanEnd: (DragEndDetails details) {
                 setState(() {
                   _currentDrawing.clear();
                 });
@@ -271,28 +271,39 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                   child: Icon(Icons.undo),
                   onPressed: _undoLastDrawing,
                 ),
-                SizedBox(width: 16),
-                FloatingActionButton(
-                  child: Icon(Icons.save),
-                  onPressed: () {
-                    _savePdfWithSignature();
-                  },
-                ),
               ],
             )
-          : _isSignatureVisible
-              ? FloatingActionButton(
-                  child: Icon(Icons.save),
-                  onPressed: () {
-                    _savePdfWithSignature();
-                  },
-                )
-              : null,
+          : null,
     );
   }
+}
 
-  void _savePdfWithSignature() {
-    // Implement your save PDF functionality here
-    // This method should save the signature position and embed it into the PDF file
+class DrawingPainter extends CustomPainter {
+  final List<List<Offset>> drawings;
+  final List<Offset> currentDrawing;
+
+  DrawingPainter(this.drawings, this.currentDrawing);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke;
+
+    for (var drawing in drawings) {
+      if (drawing.isNotEmpty) {
+        final path = Path()..moveTo(drawing.first.dx, drawing.first.dy);
+        for (var point in drawing) {
+          path.lineTo(point.dx, point.dy);
+        }
+        canvas.drawPath(path, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }
